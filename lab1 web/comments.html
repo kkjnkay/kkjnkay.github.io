@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Коментарі</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            padding: 10px;
+            margin: 0;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #333;
+        }
+
+        main {
+            flex: 1;
+        }
+
+        .comments-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #ffa500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comment strong {
+            color: #333;
+        }
+
+        .comment button {
+            background: #ff3b30;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .comment button:hover {
+            background: #e60000;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment-form input,
+        .comment-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .comment-form button {
+            background: #ffa500;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .comment-form button:hover {
+            background: #ff8c00;
+        }
+
+        #show-form-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        #show-form-btn:hover {
+            background: #0056b3;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Головна</a></li>
+                <li><a href="my-recipes.html">Мої рецепти</a></li>
+                <li><a href="categories.html">Категорії</a></li>
+                <li><a href="comments.html">Коментарі</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="comments-container">
+            <h2>Відгуки користувачів</h2>
+
+            <div id="comments-list"></div>
+
+            <button id="show-form-btn">Додати коментар</button>
+
+            <div id="form-container" style="display: none;">
+                <h3>Залишити коментар</h3>
+                <form class="comment-form" id="comment-form">
+                    <input type="text" id="comment-name" placeholder="Ваше ім'я" required>
+                    <textarea id="comment-text" placeholder="Ваш коментар" rows="4" required></textarea>
+                    <button type="submit">Надіслати</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Контактна інформація: info@recipes.com | Телефон: +380 123 456 789</p>
+    </footer>
+
+    <script>
+        document.getElementById('show-form-btn').addEventListener('click', function () {
+            const formContainer = document.getElementById('form-container');
+            formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.getElementById('comment-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('comment-name').value.trim();
+            const text = document.getElementById('comment-text').value.trim();
+
+            if (name && text) {
+                const newComment = { name, text };
+                let comments = JSON.parse(localStorage.getItem('comments')) || [];
+                comments.push(newComment);
+                localStorage.setItem('comments', JSON.stringify(comments));
+
+                displayComments();
+
+                document.getElementById('comment-name').value = '';
+                document.getElementById('comment-text').value = '';
+                document.getElementById('form-container').style.display = 'none';
+            } else {
+                alert('Будь ласка, заповніть всі поля.');
+            }
+        });
+
+        function displayComments() {
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            const comments = JSON.parse(localStorage.getItem('comments')) || [];
+
+            comments.forEach((comment, index) => {
+                const commentElement = document.createElement('div');
+                commentElement.classList.add('comment');
+                commentElement.innerHTML = `
+                    <div>
+                        <strong>${comment.name}:</strong>
+                        <p>${comment.text}</p>
+                    </div>
+                    <button onclick="deleteComment(${index})">Видалити</button>
+                `;
+                commentsList.appendChild(commentElement);
+            });
+        }
+
+        function deleteComment(index) {
+            let comments = JSON.parse(localStorage.getItem('comments')) || [];
+            comments.splice(index, 1);
+            localStorage.setItem('comments', JSON.stringify(comments));
+            displayComments();
+        }
+
+        window.onload = displayComments;
+    </script>
+</body>
+</html>

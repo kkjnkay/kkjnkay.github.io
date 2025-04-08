@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мої рецепти</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+        main {
+            flex: 1;
+        }
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .recipe-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .recipe-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        #add-recipe-form {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        #add-recipe-form input,
+        #add-recipe-form textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #add-recipe-form button {
+            padding: 10px 20px;
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Головна</a></li>
+                <li><a href="my-recipes.html">Мої рецепти</a></li>
+                <li><a href="categories.html">Категорії</a></li>
+                <li><a href="comments.html">Коментарі</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Мої рецепти</h1>
+
+        <div id="add-recipe-form">
+            <h2>Додати новий рецепт</h2>
+            <input type="text" id="recipe-title" placeholder="Назва рецепту">
+            <input type="text" id="recipe-time" placeholder="Час приготування">
+            <textarea id="recipe-ingredients" placeholder="Інгредієнти"></textarea>
+            <input type="text" id="recipe-image" placeholder="Посилання на фото (URL)">
+            <button onclick="addNewRecipe()">Додати</button>
+        </div>
+
+        <div class="recipes-grid" id="recipes-container">
+            <article class="recipe-card">
+                <img src="chocolate-cake.jpg" alt="Шоколадний торт">
+                <h3>Шоколадний торт</h3>
+                <p>Час приготування: 1 год</p>
+                <p>Інгредієнти: борошно, яйця, какао...</p>
+            </article>
+            <article class="recipe-card">
+                <img src="omlet.jpg" alt="Омлет з овочами">
+                <h3>Омлет з овочами</h3>
+                <p>Час приготування: 15 хв</p>
+                <p>Інгредієнти: яйця, перець, цибуля...</p>
+            </article>
+            <article class="recipe-card">
+                <img src="salat-cezar.jpg" alt="Салат Цезар">
+                <h3>Салат Цезар</h3>
+                <p>Час приготування: 20 хв</p>
+                <p>Інгредієнти: курка, листя салату, пармезан...</p>
+            </article>
+            <article class="recipe-card">
+                <img src="potato.jpg" alt="Картопля по-селянськи">
+                <h3>Картопля по-селянськи</h3>
+                <p>Час приготування: 40 хв</p>
+                <p>Інгредієнти: картопля, спеції, олія...</p>
+            </article>
+        </div>
+    </main>
+
+    <footer>
+        <p>Контактна інформація: info@recipes.com | Телефон: +380 123 456 789</p>
+    </footer>
+
+    <script>
+        function extractDirectImageUrl(url) {
+            try {
+                const parsed = new URL(url);
+                const imageUrl = parsed.searchParams.get("imgurl");
+                return imageUrl ? decodeURIComponent(imageUrl) : url;
+            } catch (e) {
+                return url;
+            }
+        }
+
+        function addNewRecipe() {
+            const title = document.getElementById('recipe-title').value.trim();
+            const time = document.getElementById('recipe-time').value.trim();
+            const ingredients = document.getElementById('recipe-ingredients').value.trim();
+            const imageUrlRaw = document.getElementById('recipe-image').value.trim();
+            const imageUrl = extractDirectImageUrl(imageUrlRaw);
+
+            if (title && time && ingredients && imageUrl) {
+                const recipeCard = document.createElement('article');
+                recipeCard.className = 'recipe-card';
+                recipeCard.innerHTML = `
+                    <img src="${imageUrl}" alt="${title}">
+                    <h3>${title}</h3>
+                    <p>Час приготування: ${time}</p>
+                    <p>Інгредієнти: ${ingredients}</p>
+                    <button onclick="editRecipe(this)">Редагувати</button>
+                `;
+                document.getElementById('recipes-container').appendChild(recipeCard);
+
+                document.getElementById('recipe-title').value = '';
+                document.getElementById('recipe-time').value = '';
+                document.getElementById('recipe-ingredients').value = '';
+                document.getElementById('recipe-image').value = '';
+            } else {
+                alert('Будь ласка, заповніть всі поля.');
+            }
+        }
+
+        function editRecipe(button) {
+            const card = button.parentElement;
+            const title = card.querySelector('h3').textContent;
+            const time = card.querySelectorAll('p')[0].textContent.replace('Час приготування: ', '');
+            const ingredients = card.querySelectorAll('p')[1].textContent.replace('Інгредієнти: ', '');
+            const image = card.querySelector('img').src;
+
+            document.getElementById('recipe-title').value = title;
+            document.getElementById('recipe-time').value = time;
+            document.getElementById('recipe-ingredients').value = ingredients;
+            document.getElementById('recipe-image').value = image;
+
+            card.remove();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
